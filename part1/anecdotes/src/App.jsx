@@ -33,11 +33,13 @@ const App = () => {
   const a = Array(anecdotes.length).fill(0)
 
   const [votes, setVotes] = useState(a)
-
   const [selected, setSelected] = useState(0)
 
   const nextAnecdote = () => {
-    const newIndex = getRandomInt(anecdotes.length);
+    let newIndex = getRandomInt(anecdotes.length);
+    while(newIndex == selected) {
+      newIndex = getRandomInt(anecdotes.length);
+    }
     setSelected(newIndex);
   }
 
@@ -60,6 +62,7 @@ const App = () => {
       <Button onClick={nextAnecdote} name="next anecdote"/>
       <Header name="Anecdote with most votes"/>
       <p>{anecdotes[findMax()]}</p>
+      <p>has {votes[selected]} votes</p>
     </div>
   )
 }
