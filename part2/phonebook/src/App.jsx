@@ -75,11 +75,7 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    let exist = false;
-
-    for (let i = 0; i < persons.length; i++) {
-      if (persons[i].name === newName) exist = true;
-    }
+    const exist = persons.find((person) => person.name === newName);
 
     if (exist) alert(`${newName} is already added to the phonebook`);
     else {
@@ -93,6 +89,9 @@ const App = () => {
       setNewNumber("");
     }
   };
+
+  const renderPersons = (people) =>
+    people.map((person) => <Record key={person.name} person={person} />);
 
   return (
     <div>
@@ -110,9 +109,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      {search !== ""
-        ? filter.map((person) => <Record key={person.name} person={person} />)
-        : persons.map((person) => <Record key={person.name} person={person} />)}
+      {search !== "" ? renderPersons(filter) : renderPersons(persons)}
     </div>
   );
 };
