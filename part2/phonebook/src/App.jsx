@@ -1,49 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const Record = (props) => {
-  const { person } = props;
-
-  return (
-    <div>
-      {person.name} {person.number}
-    </div>
-  );
-};
-
-const Filter = (props) => {
-  const { search, handleSearchChange } = props;
-  return (
-    <div>
-      search: <input value={search} onChange={handleSearchChange} />
-    </div>
-  );
-};
-
-const Form = (props) => {
-  const {
-    handleSubmit,
-    newName,
-    newNumber,
-    handleNameChange,
-    handleNumberChange,
-  } = props;
-  return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange} />
-        </div>
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  );
-};
+import personServer from "./server/Persons";
+import { Filter, Form, Record } from "./components/index";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -52,13 +9,9 @@ const App = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState([]);
 
-  const hook = () => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then((res) => setPersons(res.data));
-  };
-
-  useEffect(hook, []);
+  useEffect(() => {
+    personServer.getAll().then((initialPersons) => setPersons(initialPersons));
+  }, []);
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
@@ -72,7 +25,7 @@ const App = () => {
     setSearch(event.target.value);
     let search = event.target.value;
     let filterList = persons.filter((person) =>
-      person.name.toLowerCase().includes(search)
+      person.name.toLowerCase().includes(search.toLowerCase())
     );
     setFilter(filterList);
   };
@@ -83,19 +36,38 @@ const App = () => {
 
     if (exist) alert(`${newName} is already added to the phonebook`);
     else {
-      let newPerson = {
-        id: persons.length + 1,
+      const newPerson = {
         name: newName,
         number: newNumber,
       };
-      setPersons(persons.concat(newPerson));
-      setNewName("");
-      setNewNumber("");
+
+      personServer.createPerson(newPerson).then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName("");
+        setNewNumber("");
+      });
+    }
+  };
+
+  const handleDelete = (id) => {
+    const name = persons.find((person) => person.id === id).name;
+
+    if (window.confirm(`Delete ${name}`)) {
+      personServer
+        .deletePerson(id)
+        .then((response) => {
+          setPersons(persons.filter((person) => person.id !== id));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   };
 
   const renderPersons = (people) =>
-    people.map((person) => <Record key={person.name} person={person} />);
+    people.map((person) => (
+      <Record key={person.name} person={person} handleDelete={handleDelete} />
+    ));
 
   return (
     <div>
