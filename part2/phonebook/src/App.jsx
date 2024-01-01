@@ -36,11 +36,11 @@ const App = () => {
     event.preventDefault();
     //return object matches the name
     const exist = persons.find((person) => person.name === newName);
-    const id = exist.id;
     const message = `${newName} is already added to the phonebook, replace the old number with a new one?`;
 
     if (exist) {
       if (window.confirm(message)) {
+        const id = exist.id;
         //create new object cause changing `exist` will also change the state persons
         const changedPerson = { ...exist, number: newNumber };
         personServer.updatePerson(id, changedPerson).then((updatedPerson) => {
