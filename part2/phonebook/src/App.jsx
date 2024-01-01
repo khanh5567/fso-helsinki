@@ -24,6 +24,8 @@ const App = () => {
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
     let search = event.target.value;
+    //includes return true if matches
+    //using filter will reduce the list to only those that match
     let filterList = persons.filter((person) =>
       person.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -32,15 +34,32 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    //return object matches the name
     const exist = persons.find((person) => person.name === newName);
+    const id = exist.id;
+    const message = `${newName} is already added to the phonebook, replace the old number with a new one?`;
 
-    if (exist) alert(`${newName} is already added to the phonebook`);
-    else {
+    if (exist) {
+      if (window.confirm(message)) {
+        //create new object cause changing `exist` will also change the state persons
+        const changedPerson = { ...exist, number: newNumber };
+        personServer.updatePerson(id, changedPerson).then((updatedPerson) => {
+          //map to the new one if the id matches the updating person
+          //otherwise map to the same one, or nothing changes
+          setPersons(
+            persons.map((person) =>
+              person.id === updatedPerson.id ? updatedPerson : person
+            )
+          );
+          setNewName("");
+          setNewNumber("");
+        });
+      }
+    } else {
       const newPerson = {
         name: newName,
         number: newNumber,
       };
-
       personServer.createPerson(newPerson).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
         setNewName("");
@@ -55,7 +74,9 @@ const App = () => {
     if (window.confirm(`Delete ${name}`)) {
       personServer
         .deletePerson(id)
-        .then((response) => {
+        .then((res) => {
+          //only update once delete is successful
+          //filter out the id that is not deleted to display
           setPersons(persons.filter((person) => person.id !== id));
         })
         .catch((error) => {
