@@ -32,7 +32,7 @@ const App = () => {
   //remove persons to test 2.17, otherwise bug cannot be recreated
   useEffect(() => {
     personServer.getAll().then((initialPersons) => setPersons(initialPersons));
-  }, [persons]);
+  }, []);
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
