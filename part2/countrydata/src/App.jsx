@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const api_key = import.meta.env.VITE_SOME_KEY;
+const api_key = import.meta.env.VITE_WEATHER_API_KEY;
+const baseURL = "openweathermap.org";
 
 const Record = ({ country, weather }) => {
   let languages = Object.values(country.languages);
@@ -27,7 +28,7 @@ const Record = ({ country, weather }) => {
       <h3>Weather in {country.capital[0]}</h3>
       <div>temperature {(weather.main.temp - 273.15).toFixed(2)} Celcius</div>
       <img
-        src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}
+        src={`https://${baseURL}/img/wn/${weather.weather[0].icon}.png`}
         alt="Weather Icon"
       />
       <div>wind {weather.wind.speed} m/s</div>
@@ -35,7 +36,7 @@ const Record = ({ country, weather }) => {
   );
 };
 
-const ListItem = ({ country, handleClick }) => {
+const CountryList = ({ country, handleClick }) => {
   return (
     <div>
       {country.name.common}{" "}
@@ -59,7 +60,7 @@ function App() {
       const capital = result[0].capital[0];
       axios
         .get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${capital}&unit=imperial&APPID=${api_key}`
+          `https://api.${baseURL}/data/2.5/weather?q=${capital}&unit=imperial&APPID=${api_key}`
         )
         .then((res) => setWeather(res.data))
         .catch((error) => console.log("error: ", error));
@@ -95,12 +96,12 @@ function App() {
       {result.length > 10 ? (
         "Too many matches, try again"
       ) : result.length === 0 ? (
-        "No matches, try again"
+        "No matches"
       ) : result.length === 1 ? (
         <Record country={result[0]} weather={weather} />
       ) : (
         result.map((country) => (
-          <ListItem
+          <CountryList
             key={country.cca3}
             country={country}
             handleClick={handleClick}
