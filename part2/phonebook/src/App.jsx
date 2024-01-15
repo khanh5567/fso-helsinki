@@ -80,6 +80,7 @@ const App = () => {
       })
       .catch((error) => {
         console.log(error.response.data.error);
+        setAndClearMessage(error.response.data.error);
       });
   };
 
@@ -123,13 +124,14 @@ const App = () => {
     }
   };
 
-  const renderPersons = (people) =>
-    people.map((person) => (
-      <Record key={person.name} person={person} handleDelete={handleDelete} />
+  const renderPersons = (people) => {
+    return people.map((person) => (
+      <Record key={person.id} person={person} handleDelete={handleDelete} />
     ));
+  };
 
   return (
-    <div>
+    <>
       <h2>Phonebook</h2>
       <Filter search={search} handleSearchChange={handleSearchChange} />
       <h3>Add a new</h3>
@@ -143,7 +145,7 @@ const App = () => {
       />
       <h3>Numbers</h3>
       {search !== "" ? renderPersons(filter) : renderPersons(persons)}
-    </div>
+    </>
   );
 };
 
