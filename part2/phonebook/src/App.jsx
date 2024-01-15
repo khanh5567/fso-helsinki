@@ -14,9 +14,10 @@ const App = () => {
   const [message, setMessage] = useState(null);
 
   //call hook after message gets updated, might be redundant
-  useEffect(() => {
+  const hook = () => {
     personServer.getAll().then((initialPersons) => setPersons(initialPersons));
-  }, [message]);
+  };
+  useEffect(hook, [message]);
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
@@ -64,17 +65,22 @@ const App = () => {
         setAndClearMessage(`Updated ${updatedPerson.name}`, 1);
       })
       .catch((error) => {
-        setAndClearMessage(`${newName} is not in the server`, 0);
+        console.log(error.response.data.error);
       });
   };
 
   const addToList = (newPerson) => {
-    personServer.createPerson(newPerson).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      setNewName("");
-      setNewNumber("");
-      setAndClearMessage(`Added ${returnedPerson.name}`, 1);
-    });
+    personServer
+      .createPerson(newPerson)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName("");
+        setNewNumber("");
+        setAndClearMessage(`Added ${returnedPerson.name}`, 1);
+      })
+      .catch((error) => {
+        console.log(error.response.data.error);
+      });
   };
 
   const handleSubmit = (event) => {
